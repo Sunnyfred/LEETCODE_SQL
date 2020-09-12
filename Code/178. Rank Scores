@@ -37,8 +37,8 @@ Important Note: For MySQL solutions, to escape reserved words used as column nam
 
 
 A:
-SELECT s.Score, COUNT(t.Score) AS 'Rank' FROM
-(SELECT DISTINCT Score FROM Scores) AS t, Scores AS s
-WHERE s.Score <= t.Score
-GROUP BY s.Id, s.Score
+SELECT s.Score, COUNT(t.Score) AS 'Rank'  FROM 
+(SELECT DISTINCT Score FROM Scores) as t, Scores AS s
+WHERE t.Score >= s.Score
+GROUP BY s.Id
 ORDER BY s.Score DESC;
