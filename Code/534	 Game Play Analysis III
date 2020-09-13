@@ -55,3 +55,15 @@ FROM
 GROUP BY
     a.player_id,
     a.event_date
+    
+    
+(comments:
+b.event_date <= a.event_date
+
+a=2016-03-01 b=2016-03-01
+
+a=2016-05-02 b=2016-03-01,2016-05-02
+
+a=2017-06-25 b=2016-03-01,2016-05-02,2017-06-25
+
+)
