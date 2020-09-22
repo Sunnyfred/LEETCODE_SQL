@@ -1,5 +1,14 @@
 Q:
 
+(drop table if exists point_2d;
+Create table If Not Exists point_2d (
+    x int,
+    y int);
+Truncate table point_2d;
+ 
+insert into point_2d (x, y) values ('-1', '-1');
+insert into point_2d (x, y) values ('0', '0');
+insert into point_2d (x, y) values ('-1', '-2');)
 
 Table point_2d holds the coordinates (x,y) of some unique points (more than two) in a plane.
 
@@ -17,17 +26,8 @@ Note: The longest distance among all the points are less than 10000.
 
 
 
-x     	y     	x	      y
--1	    -1	    -1	    -1
-0	      0	      -1	    -1
--1	    -2	    -1	    -1
--1	    -1	    0	      0
-0	      0	      0	      0
--1	    -2	    0	      0
--1	    -1	    -1	    -2
-0	      0	      -1	    -2
--1	    -2	    -1	    -2
-
-
 A:
 
+SELECT round(sqrt(min(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2))),2)
+FROM point_2d AS p1, point_2d AS p2
+where p1.x<>p2.x or p1.y<>p2.y
