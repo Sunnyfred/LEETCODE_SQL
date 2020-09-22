@@ -2,7 +2,7 @@ Q:
 
 (create table tree(id int,p_id int)
  
-insert into tree values (1,null)
+insert into tree values (1,0)
 insert into tree values (2,1)
 insert into tree values (3,1)
 insert into tree values (4,2)
