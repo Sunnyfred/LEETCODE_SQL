@@ -34,3 +34,15 @@ Consecutive available seats are more than 2(inclusive) seats consecutively avail
 
 A:
 
+SELECT DISTINCT C1.SEAT_ID FROM CINEMA C1
+INNER JOIN CINEMA C2
+ON C1.SEAT_ID=C2.SEAT_ID-1 OR C2.SEAT_ID=C1.SEAT_ID-1
+WHERE C1.FREE='1' AND C2.FREE='1' 
+ORDER BY C1.SEAT_ID
+
+
+OR
+
+
+SELECT DISTINCT c1.seat_id FROM cinema AS c1, cinema AS c2 
+WHERE c1.free = 1 AND c2.free = 1 AND (c2.seat_id = c1.seat_id + 1 OR c2.seat_id = c1.seat_id -1) ORDER BY c1.seat_id;
