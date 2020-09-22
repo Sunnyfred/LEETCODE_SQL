@@ -1,6 +1,15 @@
 Q:
 
-()
+(drop table if exists customer;
+Create table If Not Exists customer (id int, name varchar(255), referee_id varchar(255));
+Truncate table customer;
+ 
+insert into customer (id, name, referee_id) values ('1', 'Will', 'NULL');
+insert into customer (id, name, referee_id) values ('2', 'Jane', 'NULL');
+insert into customer (id, name, referee_id) values ('3', 'Alex', '2');
+insert into customer (id, name, referee_id) values ('4', 'Bill', 'NULL');
+insert into customer (id, name, referee_id) values ('5', 'Zack', '1');
+insert into customer (id, name, referee_id) values ('6', 'Mark', '2');)
 
 
 Given a table customer holding customers information and the referee.
@@ -29,4 +38,7 @@ For the sample data above, the result is:
 | Zack |
 +------+
 
+A:
 
+SELECT name FROM CUSTOMER
+WHERE REFEREE_ID <> 2 OR referee_id IS NULL;
