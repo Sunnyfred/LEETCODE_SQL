@@ -46,3 +46,10 @@ select num from number
 group by num 
 having count(*)<2
 order by num desc limit 1;
+
+
+or 
+
+
+select max(num) as num from
+(select num from number group by num having count(*)=1) t
