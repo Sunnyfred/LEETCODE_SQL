@@ -1,0 +1,47 @@
+Q:
+
+(drop table if exists student;
+Create table If Not Exists student (name varchar(50), continent varchar(7));
+Truncate table student;
+ 
+insert into student (name, continent) values ('Jane', 'America');
+insert into student (name, continent) values ('Pascal', 'Europe');
+insert into student (name, continent) values ('Xi', 'Asia');
+insert into student (name, continent) values ('Jack', 'America');)
+
+A U.S graduate school has students from Asia, Europe and America. The students’ location information are stored in table student as below.
+name	     continent
+Jack	     America
+Pascal	   Europe
+Xi	       Asia
+Jane	     America
+
+Pivot the continent column in this table so that each name is sorted alphabetically and displayed underneath its corresponding continent. 
+The output headers should be America, Asia and Europe respectively. It is guaranteed that the student number from America is no less than either Asia or Europe.
+
+For the sample input, the output is:
+America	   Asia	    Europe
+Jack	     Xi	      Pascal
+Jane		
+
+Follow-up: If it is unknown which continent has the most students, can you write a query to generate the student report?
+
+A:
+
+select * from student;
+SELECT America.name as America, Asia.name as Asia, Europe.name as Europe
+from 
+(
+select name, @a := @a + 1 as ID from student, (select @a := 0) t
+  where continent = 'America' order by name
+) America
+left join
+(
+select name, @b := @b + 1 AS ID from student, (select @b := 0) t
+  where continent = 'Asia' order by name
+) Asia on Asia.ID = America.ID
+left join 
+(
+select name, @c := @c + 1 AS ID from student, (select @c := 0) t
+  where continent = 'Europe' order by name
+) Europe on Europe.ID = Asia.ID;
