@@ -1,0 +1,93 @@
+Q:
+
+(CREATE TABLE Spending (
+  user_id INT,
+  spend_date DATE,
+  platform ENUM ('desktop', 'mobile'),
+  amount INT
+) ;
+
+INSERT INTO Spending ( user_id, spend_date, platform, amount ) VALUES (1, '2019-07-01', 'mobile', 100) ; 
+INSERT INTO Spending ( user_id, spend_date, platform, amount ) VALUES (1, '2019-07-01', 'desktop', 100) ; 
+INSERT INTO Spending ( user_id, spend_date, platform, amount ) VALUES (2, '2019-07-01', 'mobile', 100) ; 
+INSERT INTO Spending ( user_id, spend_date, platform, amount ) VALUES (2, '2019-07-02', 'mobile', 100) ; 
+INSERT INTO Spending ( user_id, spend_date, platform, amount ) VALUES (3, '2019-07-01', 'desktop', 100) ; 
+INSERT INTO Spending ( user_id, spend_date, platform, amount ) VALUES (3, '2019-07-02', 'desktop', 100) ; )
+
+Table: Spending
+
++-------------+---------+
+| Column Name | Type |
++-------------+---------+
+| user_id | int |
+| spend_date | date |
+| platform | enum |
+| amount | int |
++-------------+---------+
+The table logs the spendings history of users that make purchases from an online shopping website which has a desktop and a mobile application.
+(user_id, spend_date, platform) is the primary key of this table.
+The platform column is an ENUM type of ('desktop', 'mobile').
+
+Write an SQL query to find the total number of users and the total amount spent using mobile only, 
+desktop only and both mobile and desktop together for each date.
+
+The query result format is in the following example:
+
+Spending table:
++---------+------------+----------+--------+
+| user_id | spend_date | platform | amount |
++---------+------------+----------+--------+
+| 1 | 2019-07-01 | mobile | 100 |
+| 1 | 2019-07-01 | desktop | 100 |
+| 2 | 2019-07-01 | mobile | 100 |
+| 2 | 2019-07-02 | mobile | 100 |
+| 3 | 2019-07-01 | desktop | 100 |
+| 3 | 2019-07-02 | desktop | 100 |
++---------+------------+----------+--------+
+
+Result table:
++------------+----------+--------------+-------------+
+| spend_date | platform | total_amount | total_users |
++------------+----------+--------------+-------------+
+| 2019-07-01 | desktop | 100 | 1 |
+| 2019-07-01 | mobile | 100 | 1 |
+| 2019-07-01 | both | 200 | 1 |
+| 2019-07-02 | desktop | 100 | 1 |
+| 2019-07-02 | mobile | 100 | 1 |
+| 2019-07-02 | both | 0 | 0 |
++------------+----------+--------------+-------------+
+On 2019-07-01, user 1 purchased using both desktop and mobile, user 2 purchased using mobile only and user 3 purchased using desktop only.
+On 2019-07-02, user 2 purchased using mobile only, user 3 purchased using desktop only and no one purchased using both platforms.
+
+
+A:
+
+select a.spend_date, a.platform, coalesce(b.total_amount, 0) as total_amount, coalesce(b.total_users, 0) as total_users
+from 
+(
+  select distinct(spend_date), tmp1.platform from spending
+  join
+  (
+    select 'desktop' as platform union
+    select 'mobile' as platform union
+    select 'both' as platform 
+  ) tmp1
+) a        /* table a makes sure each day has three platform--- 'desktop', 'mobile', and 'both' */ 
+left join
+(
+select tmp2.spend_date, tmp2.platform, total_amount, count(tmp2.user_id) total_users
+  from 
+  (
+    select spend_date,
+    (case count(distinct platform)
+    when 1 then platform
+    else 'both'
+    end) platform,
+    sum(amount) as total_amount,
+    user_id
+    from spending
+    group by spend_date, user_id  /* need apply 'group by', because of using sum() and count() */
+  ) tmp2
+  group by spend_date, platform  /* need apply 'group by', because of using count() */
+) b
+on b.spend_date = a.spend_date and b.platform = a.platform 
