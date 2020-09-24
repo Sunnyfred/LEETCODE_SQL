@@ -65,3 +65,30 @@ FROM
             a.install_dt + 1=b.event_date
     ) AS tmp
 GROUP BY install_dt
+
+
+
+
+(comments；
+
++------------+----------+----------------+
+| install_dt | installs | Day1_retention |
++------------+----------+----------------+
+| 2016-03-01 | 2        | 0.50           |
+| 2017-06-25 | 1        | 0.00           |
++------------+----------+----------------+
+
+TRACK BACK, THEN
+
++------------+----------+----------------+
+| event_date | player_id|  event_date+1  |
++------------+----------+----------------+
+| 2016-03-01 | 1        |    2016-03-02  |
+| 2016-03-01 | 3        |       N/A      |
+| 2017-06-25 | 2        |       N/A      |
++------------+----------+----------------+
+(C1 AND C2 ARE OBTAIN BY (SELECT player_id, MIN(event_date) FROM Activity GROUP BY player_id) AS A;
+C3 IS OBTAIN BY TABLE A left join Activity on same player_id and C3 = C2 + 1)
+
+
+)
