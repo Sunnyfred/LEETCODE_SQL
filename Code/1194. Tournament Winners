@@ -119,3 +119,6 @@ select p.group_id, p.player_id,
 ) tmp
 group by group_id
 order by group_id,total_scores desc,player_id
+
+
+(comments: when not using aggregation function in select statement, only output first row of each group !!!!! like 'select * from table group by 1' )
