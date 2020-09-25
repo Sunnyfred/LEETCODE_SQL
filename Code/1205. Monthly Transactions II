@@ -1,6 +1,34 @@
 Q:
 
-()
+(create table Transactions
+(
+  id int,
+  country char(200),
+  state char(200),
+  amount int,
+  trans_date DATE
+);
+
+insert into Transactions values(101, 'US', 'approved', 1000, '2019-05-18');
+insert into Transactions values(102, 'US', 'declined', 2000, '2019-05-19');
+insert into Transactions values(103, 'US', 'approved', 3000, '2019-06-10');
+insert into Transactions values(104, 'US', 'approved', 4000, '2019-06-13');
+insert into Transactions values(105, 'US', 'approved', 5000, '2019-06-15');
+
+
+create table Chargebacks 
+(
+  trans_id int,
+  trans_date DATE
+);
+
+insert into Chargebacks values(102, '2019-05-29');
+insert into Chargebacks values(101, '2019-06-30');
+insert into Chargebacks values(105, '2019-09-18');
+
+)
+
+
 Table: Transactions
 
 +----------------+---------+
@@ -26,8 +54,10 @@ Table: Chargebacks
 Chargebacks contains basic information regarding incoming chargebacks from some transactions placed in Transactions table.
 trans_id is a foreign key to the id column of Transactions table.
 Each chargeback corresponds to a transaction made previously even if they were not approved.
-Write an SQL query to find for each month and country, the number of approved transactions and their total amount, the number of chargebacks and their total amount.
 
+Write an SQL query to find for each month and country, 
+the number of approved transactions and their total amount, 
+the number of chargebacks and their total amount.
 Note: In your query, given the month and country, ignore rows with all zeros.
 
 The query result format is in the following example:
@@ -65,3 +95,27 @@ Result table:
 
 A:
 
+select month, country,
+    sum(case when type='approved' then count else 0 end) as approved_count,
+    sum(case when type='approved' then amount else 0 end) as approved_amount,
+    sum(case when type='chargeback' then count else 0 end) as chargeback_count,
+    sum(case when type='chargeback' then amount else 0 end) as chargeback_amount
+from (
+    (
+    select left(t.trans_date, 7) as month, t.country,
+    count(1) as count, sum(amount) as amount,'approved' as type
+    from Transactions as t left join Chargebacks as c
+    on t.id = c.trans_id
+    where state='approved'
+    group by left(t.trans_date, 7), t.country
+    ) 
+    union 
+    (
+    select left(c.trans_date, 7) as month, t.country,
+        count(1) as count, sum(amount) as amount,'chargeback' as type
+    from Transactions as t join Chargebacks as c
+    on t.id = c.trans_id
+    group by left(c.trans_date, 7), t.country       
+    )
+) as tt
+group by tt.month, tt.country
