@@ -1,0 +1,72 @@
+Q:
+
+(create table Queue
+(
+  person_id int,
+  person_name char(200),
+  weight int,
+  turn int
+);
+
+insert into Queue values(5, 'George Washington', 250, 1);
+insert into Queue values(3, 'John Adams', 350, 2);
+insert into Queue values(6, 'Thomas Jefferson', 400, 3);
+insert into Queue values(2, 'Will Johnliams', 200, 4);
+insert into Queue values(4, 'Thomas Jefferson', 175, 5);
+insert into Queue values(1, 'James Elephant', 500, 6);
+)
+
+Table: Queue
+
++ ------------- + --------- +
+| Column the Name | Type |
++ ------------- + ---- + -----
+| person_id | int |
+| PERSON_NAME | VARCHAR |
+| weight | int |
+| Turn | int |
++ ------------- + --------- +
+the person_id is the primary key of this table.
+The table shows all the people waiting for the elevator information.
+Person_id turn table and the columns contain all numbers from 1 to n, where n is the number of rows in the table.
+ 
+
+Elevator maximum load of 1000.
+
+Write a SQL query to find the last one to enter the elevator 
+and does not exceed the weight limit of person_name. 
+Topic ensure that the queue first person to enter the elevator.
+
+Results are as follows:
+
+Queue Table
++-----------+-------------------+--------+------+
+| person_id | person_name       | weight | turn |
++-----------+-------------------+--------+------+
+| 5         | George Washington | 250    | 1    |
+| 3         | John Adams        | 350    | 2    |
+| 6         | Thomas Jefferson  | 400    | 3    |
+| 2         | Will Johnliams    | 200    | 4    |
+| 4         | Thomas Jefferson  | 175    | 5    |
+| 1         | James Elephant    | 500    | 6    |
++-----------+-------------------+--------+------+
+
+Result Table
++-------------------+
+| person_name       |
++-------------------+
+| Thomas Jefferson  |
++-------------------+
+
+To simplify, Queue trun table are sorted in ascending column.
+In the embodiment George Washington (id 5), John Adams (id 3) and Thomas Jefferson (id 6) will be able to enter the elevator, and because their weight is 250 + 350 + 400 = 1000.
+Thomas Jefferson (id 6) and is the last person to enter the appropriate weight of the elevator.
+
+
+A:
+
+select a.person_name from queue a, queue b
+where a.turn >= b.turn
+group by a.turn
+having sum(b.weight) <= 1000
+order by a.turn desc limit 1
