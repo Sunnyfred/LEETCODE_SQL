@@ -66,3 +66,20 @@ from
   from logs
 ) f
 group by f.rank
+
+or
+
+## find the starting sequence: 1, 7, 10
+## find the ending sequence: 3, 8, 10
+## merge them as one table
+select start_id, min(end_id) as end_id
+from (select t1.log_id as start_id
+    from logs as t1 left join logs as t2
+    on t1.log_id-1 = t2.log_id
+    where t2.log_id is null) tt_start join
+    (select t1.log_id as end_id
+    from logs as t1 left join logs as t2
+    on t1.log_id+1 = t2.log_id
+    where t2.log_id is null) tt_end
+where start_id<=end_id
+group by start_id
