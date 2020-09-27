@@ -1,12 +1,12 @@
 Q:
 
-(Create table If Not Exists Movie (movie_id INT, title DATE);
+(Create table If Not Exists Movie (movie_id INT, title CHAR(200));
 Truncate table Movie;
 insert into Movie (movie_id, title) values (1, 'Avengers');
 insert into Movie (movie_id, title) values (2, 'Frozen 2');
 insert into Movie (movie_id, title) values (3, 'Joker');
 
-Create table If Not Exists Users (user_id INT, name DATE);
+Create table If Not Exists Users (user_id INT, name CHAR(200);
 Truncate table Users;
 insert into Users (user_id, name) values (1, 'Daniel');
 insert into Users (user_id, name) values (2, 'Monica');
