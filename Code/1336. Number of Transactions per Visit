@@ -1,6 +1,29 @@
 Q:
 
-()
+(Create table If Not Exists Visits (user_id INT, visit_date DATE);
+Truncate table Visits;
+insert into Visits (user_id, visit_date) values (1, '2020-01-01');
+insert into Visits (user_id, visit_date) values (2, '2020-01-02');
+insert into Visits (user_id, visit_date) values (12, '2020-01-01');
+insert into Visits (user_id, visit_date) values (19, '2020-01-03');
+insert into Visits (user_id, visit_date) values (1, '2020-01-02');
+insert into Visits (user_id, visit_date) values (2, '2020-01-03');
+insert into Visits (user_id, visit_date) values (1, '2020-01-04');
+insert into Visits (user_id, visit_date) values (7, '2020-01-11');
+insert into Visits (user_id, visit_date) values (9, '2020-01-25');
+insert into Visits (user_id, visit_date) values (8, '2020-01-28');
+
+Create table If Not Exists Transactions (user_id INT, transaction_date date, amount int);
+Truncate table Transactions;
+insert into Transactions (user_id, transaction_date, amount) values (1, '2020-01-02', 120);
+insert into Transactions (user_id, transaction_date, amount) values (2, '2020-01-03', 22);
+insert into Transactions (user_id, transaction_date, amount) values (7, '2020-01-11', 232);
+insert into Transactions (user_id, transaction_date, amount) values (1, '2020-01-04', 7);
+insert into Transactions (user_id, transaction_date, amount) values (9, '2020-01-25', 33);
+insert into Transactions (user_id, transaction_date, amount) values (9, '2020-01-25', 66);
+insert into Transactions (user_id, transaction_date, amount) values (8, '2020-01-28', 1);
+insert into Transactions (user_id, transaction_date, amount) values (9, '2020-01-25', 99);
+)
 
 Table: Visits
 
@@ -30,7 +53,8 @@ It is guaranteed that the user has visited the bank in the transaction_date.(i.e
 
 A bank wants to draw a chart of the number of transactions bank visitors did in one visit to the bank and the corresponding number of visitors who have done this number of transaction in one visit.
 
-Write an SQL query to find how many users visited the bank and didn't do any transactions, how many visited the bank and did one transaction and so on.
+Write an SQL query to find how many users visited the bank and didn't do any transactions,
+how many visited the bank and did one transaction and so on.
 
 The result table will contain two columns:
 
@@ -57,6 +81,16 @@ Visits table:
 | 9       | 2020-01-25 |
 | 8       | 2020-01-28 |
 +---------+------------+
+
+user_id	transaction_date	cnt
+1	1	02.01.2020 00:00:00	1
+2	1	04.01.2020 00:00:00	1
+3	2	03.01.2020 00:00:00	1
+4	7	11.01.2020 00:00:00	1
+5	8	28.01.2020 00:00:00	1
+6	9	25.01.2020 00:00:00	3
+
+
 Transactions table:
 +---------+------------------+--------+
 | user_id | transaction_date | amount |
@@ -90,4 +124,35 @@ The chart drawn for this example is as follows:
 
 A:
 
-
+set @t := 0;
+select f1.id as transactions_count, ifnull(f2.vcn, 0) as visits_count
+from
+(select (@t := @t + 1) as id
+from Transactions,
+(
+    select max(cn) maxcn 
+    from 
+    (
+        select user_id, transaction_date, count(*) as cn 
+        from Transactions 
+        group by user_id, transaction_date
+    ) tmp1
+) tmp2
+where @t < maxcn
+union 
+select 0) f1                    /* make table transactions_count based on the max transactions of table Transactions */
+left join
+(
+    select ifnull(cn, 0) as cn, count(*) as vcn
+    from visits v
+    left join
+    (
+        select user_id, transaction_date, count(*) as cn 
+        from Transactions 
+        group by user_id, transaction_date 
+    ) tmp3
+    on v.user_id = tmp3.user_id and visit_date = transaction_date
+    group by ifnull(cn, 0)
+) f2                           /* count NO. of visit then transact by left join table Visits and table Transactions */
+on f2.cn = f1.id
+order by transactions_count
