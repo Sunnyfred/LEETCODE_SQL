@@ -1,0 +1,111 @@
+Q:
+
+(Create table If Not Exists Product (product_id int, product_name varchar(30))
+Create table If Not Exists Sales (product_id varchar(30), period_start date, period_end date, average_daily_sales int)
+Truncate table Product
+insert into Product (product_id, product_name) values ('1', 'LC Phone ')
+insert into Product (product_id, product_name) values ('2', 'LC T-Shirt')
+insert into Product (product_id, product_name) values ('3', 'LC Keychain')
+Truncate table Sales
+insert into Sales (product_id, period_start, period_end, average_daily_sales) values ('1', '2019-01-25', '2019-02-28', '100')
+insert into Sales (product_id, period_start, period_end, average_daily_sales) values ('2', '2018-12-01', '2020-01-01', '10')
+insert into Sales (product_id, period_start, period_end, average_daily_sales) values ('3', '2019-12-01', '2020-01-31', '1'))
+
+
+Table: Product
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| product_name  | varchar |
++---------------+---------+
+product_id is the primary key for this table.
+product_name is the name of the product.
+ 
+
+Table: Sales
+
++---------------------+---------+
+| Column Name         | Type    |
++---------------------+---------+
+| product_id          | int     |
+| period_start        | varchar |
+| period_end          | date    |
+| average_daily_sales | int     |
++---------------------+---------+
+product_id is the primary key for this table. 
+period_start and period_end indicates the start and end date for sales period, both dates are inclusive.
+The average_daily_sales column holds the average daily sales amount of the items for the period.
+
+Write an SQL query to report the Total sales amount of each item for each year, with corresponding product name, product_id, product_name and report_year.
+
+Dates of the sales years are between 2018 to 2020. Return the result table ordered by product_id and report_year.
+
+The query result format is in the following example:
+
+
+Product table:
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 1          | LC Phone     |
+| 2          | LC T-Shirt   |
+| 3          | LC Keychain  |
++------------+--------------+
+
+Sales table:
++------------+--------------+-------------+---------------------+
+| product_id | period_start | period_end  | average_daily_sales |
++------------+--------------+-------------+---------------------+
+| 1          | 2019-01-25   | 2019-02-28  | 100                 |
+| 2          | 2018-12-01   | 2020-01-01  | 10                  |
+| 3          | 2019-12-01   | 2020-01-31  | 1                   |
++------------+--------------+-------------+---------------------+
+
+Result table:
++------------+--------------+-------------+--------------+
+| product_id | product_name | report_year | total_amount |
++------------+--------------+-------------+--------------+
+| 1          | LC Phone     |    2019     | 3500         |
+| 2          | LC T-Shirt   |    2018     | 310          |
+| 2          | LC T-Shirt   |    2019     | 3650         |
+| 2          | LC T-Shirt   |    2020     | 10           |
+| 3          | LC Keychain  |    2019     | 31           |
+| 3          | LC Keychain  |    2020     | 31           |
++------------+--------------+-------------+--------------+
+LC Phone was sold for the period of 2019-01-25 to 2019-02-28, and there are 35 days for this period. Total amount 35*100 = 3500. 
+LC T-shirt was sold for the period of 2018-12-01 to 2020-01-01, and there are 31, 365, 1 days for years 2018, 2019 and 2020 respectively.
+LC Keychain was sold for the period of 2019-12-01 to 2020-01-31, and there are 31, 31 days for years 2019 and 2020 respectively.
+
+A:
+
+select t2.product_id,
+       t3.product_name,
+       t1.report_year,
+       (datediff(
+           if(t1.end_date<t2.period_end, t1.end_date, t2.period_end), 
+           if(t1.start_date>t2.period_start,t1.start_date, t2.period_start) 
+       )+1) * t2.average_daily_sales as total_amount
+from (
+         select '2018'             as report_year,
+                date('2018-01-01') as start_date,
+                date('2018-12-31') as end_date
+         union all
+         select '2019'             as year,
+                date('2019-01-01') as start_date,
+                date('2019-12-31') as end_date
+         union all
+         select '2020'             as year,
+                date('2020-01-01') as start_date,
+                date('2020-12-31') as end_date
+     ) t1,
+     Sales t2,
+     Product t3
+where (
+    (t2.period_start between t1.start_date and t1.end_date)
+    or (t2.period_end between t1.start_date and t1.end_date)
+    or (t1.start_date > t2.period_start and t1.end_date <t2.period_end)
+)
+and t2.product_id = t3.product_id
+order by product_id, report_year;
